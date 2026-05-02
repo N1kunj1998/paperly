@@ -9,6 +9,9 @@ import { supabase } from '@/lib/supabase'
 import { generateSlug } from '@/lib/slugify'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
 import EditorLayout from './EditorLayout'
+import { downloadPDF } from '@/lib/pdf/downloadPDF'
+import InvoicePDF from '@/lib/pdf/InvoicePDF'
+import { createElement } from 'react'
 
 interface LineItem {
   description: string
@@ -83,7 +86,10 @@ export default function InvoiceEditor() {
   }
 
   const handleDownload = () => {
-    window.print()
+    downloadPDF(
+      createElement(InvoicePDF, data),
+      `invoice-${data.invoice_number}.pdf`
+    )
   }
 
   const form = (

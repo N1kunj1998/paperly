@@ -9,6 +9,9 @@ import { supabase } from '@/lib/supabase'
 import { generateSlug } from '@/lib/slugify'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
 import EditorLayout from './EditorLayout'
+import { downloadPDF } from '@/lib/pdf/downloadPDF'
+import QuotePDF from '@/lib/pdf/QuotePDF'
+import { createElement } from 'react'
 
 interface LineItem { description: string; qty: number; rate: number }
 interface QuoteData {
@@ -97,7 +100,7 @@ export default function QuoteEditor() {
         <div><Label className="text-xs text-gray-500">Notes</Label><Textarea value={data.notes} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} /></div>
 
         <div className="flex gap-2 pt-2">
-          <Button onClick={() => window.print()} variant="outline" className="flex-1"><Download className="h-4 w-4 mr-1" /> PDF</Button>
+          <Button onClick={() => downloadPDF(createElement(QuotePDF, data), `quote-${data.quote_number}.pdf`)} variant="outline" className="flex-1"><Download className="h-4 w-4 mr-1" /> PDF</Button>
           <Button onClick={handleSaveAndShare} className="flex-1" disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Share2 className="h-4 w-4 mr-1" />} Share
           </Button>
