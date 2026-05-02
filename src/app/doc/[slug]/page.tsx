@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { FileText } from 'lucide-react'
@@ -18,6 +19,19 @@ interface DocData {
   line_items?: LineItem[]
   tax_rate?: number
   notes?: string
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const { data } = await supabase.from('documents').select('type, data').eq('slug', slug).single()
+  if (!data) return { title: 'Document not found' }
+  const doc = data.data as { invoice_number?: string; receipt_number?: string; quote_number?: string }
+  const docNumber = doc.invoice_number ?? doc.receipt_number ?? doc.quote_number
+  const label = `${data.type.charAt(0).toUpperCase()}${data.type.slice(1)}${docNumber ? ` #${docNumber}` : ''}`
+  return {
+    title: label,
+    description: `View and download this ${data.type} created with Paperly.`,
+  }
 }
 
 export default async function DocViewPage({ params }: { params: Promise<{ slug: string }> }) {
