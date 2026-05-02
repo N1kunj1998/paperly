@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-browser'
 import { generateSlug } from '@/lib/slugify'
+import { useAuth } from '@/components/AuthProvider'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
 import EditorLayout from './EditorLayout'
 import { downloadPDF } from '@/lib/pdf/downloadPDF'
@@ -45,6 +46,8 @@ export default function InvoiceEditor() {
   const [data, setData] = useState<InvoiceData>(defaultData)
   const [saving, setSaving] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const { user } = useAuth()
+  const supabase = createClient()
 
   const subtotal = data.line_items.reduce((s, i) => s + i.qty * i.rate, 0)
   const tax = subtotal * data.tax_rate / 100
@@ -76,6 +79,7 @@ export default function InvoiceEditor() {
       type: 'invoice',
       slug,
       data,
+      user_id: user?.id ?? null,
     })
     if (!error) {
       const url = `${window.location.origin}/doc/${slug}`

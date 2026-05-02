@@ -1,7 +1,10 @@
+'use client'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Receipt, MessageSquareQuote, Zap, Share2, Download } from 'lucide-react'
+import { useAuth } from '@/components/AuthProvider'
 
 const templates = [
   {
@@ -37,6 +40,7 @@ const features = [
 ]
 
 export default function Home() {
+  const { user } = useAuth()
   return (
     <main className="min-h-screen bg-white">
       {/* Nav */}
@@ -45,7 +49,18 @@ export default function Home() {
           <FileText className="h-6 w-6 text-blue-600" />
           <span className="font-bold text-xl">Paperly</span>
         </div>
-        <Badge variant="secondary">Free to use</Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary">Free to use</Badge>
+          {user ? (
+            <Link href="/dashboard">
+              <Button size="sm" variant="outline">Dashboard</Button>
+            </Link>
+          ) : (
+            <Link href="/login">
+              <Button size="sm" variant="outline">Sign in</Button>
+            </Link>
+          )}
+        </div>
       </nav>
 
       {/* Hero */}

@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-browser'
 import { generateSlug } from '@/lib/slugify'
+import { useAuth } from '@/components/AuthProvider'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
 import EditorLayout from './EditorLayout'
 import { downloadPDF } from '@/lib/pdf/downloadPDF'
@@ -36,6 +37,8 @@ export default function ReceiptEditor() {
   const [data, setData] = useState<ReceiptData>(defaultData)
   const [saving, setSaving] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const { user } = useAuth()
+  const supabase = createClient()
 
   const total = data.line_items.reduce((s, i) => s + i.qty * i.rate, 0)
 
@@ -45,7 +48,7 @@ export default function ReceiptEditor() {
   const handleSaveAndShare = async () => {
     setSaving(true)
     const slug = generateSlug()
-    const { error } = await supabase.from('documents').insert({ type: 'receipt', slug, data })
+    const { error } = await supabase.from('documents').insert({ type: 'receipt', slug, data, user_id: user?.id ?? null })
     if (!error) {
       const url = `${window.location.origin}/doc/${slug}`
       setShareUrl(url)
