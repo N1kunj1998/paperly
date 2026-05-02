@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
 import { generateSlug } from '@/lib/slugify'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
+import EditorLayout from './EditorLayout'
 
 interface LineItem { description: string; qty: number; rate: number }
 interface ReceiptData {
@@ -50,10 +51,9 @@ export default function ReceiptEditor() {
     setSaving(false)
   }
 
-  return (
-    <div className="flex gap-6 h-[calc(100vh-100px)]">
-      <div className="w-[420px] flex-shrink-0 overflow-y-auto bg-white rounded-xl border p-6 space-y-5">
-        <h2 className="font-semibold text-gray-800">Receipt Details</h2>
+  const form = (
+    <>
+      <h2 className="font-semibold text-gray-800">Receipt Details</h2>
 
         <div className="grid grid-cols-2 gap-3">
           <div><Label className="text-xs text-gray-500">Receipt #</Label><Input value={data.receipt_number} onChange={e => setData(d => ({ ...d, receipt_number: e.target.value }))} /></div>
@@ -100,10 +100,11 @@ export default function ReceiptEditor() {
             <a href={shareUrl} target="_blank" className="text-blue-600 break-all underline text-xs">{shareUrl}</a>
           </div>
         )}
-      </div>
+    </>
+  )
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="bg-white rounded-xl border p-10 max-w-2xl mx-auto shadow-sm">
+  const preview = (
+    <div className="bg-white rounded-xl border p-6 md:p-10 max-w-2xl mx-auto shadow-sm">
           <div className="flex justify-between items-start mb-10">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-widest">Receipt</h1>
@@ -145,7 +146,7 @@ export default function ReceiptEditor() {
           {data.notes && <div className="border-t mt-6 pt-6 text-sm text-gray-500"><p className="font-semibold text-gray-700 mb-1">Notes</p><p>{data.notes}</p></div>}
           <div className="mt-10 pt-6 border-t text-center text-xs text-gray-300">Made with Paperly · paperly.app</div>
         </div>
-      </div>
-    </div>
   )
+
+  return <EditorLayout form={form} preview={preview} />
 }

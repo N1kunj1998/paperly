@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
 import { generateSlug } from '@/lib/slugify'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
+import EditorLayout from './EditorLayout'
 
 interface LineItem {
   description: string
@@ -85,11 +86,9 @@ export default function InvoiceEditor() {
     window.print()
   }
 
-  return (
-    <div className="flex gap-6 h-[calc(100vh-100px)]">
-      {/* Form Panel */}
-      <div className="w-[420px] flex-shrink-0 overflow-y-auto bg-white rounded-xl border p-6 space-y-5">
-        <h2 className="font-semibold text-gray-800">Invoice Details</h2>
+  const form = (
+    <>
+      <h2 className="font-semibold text-gray-800">Invoice Details</h2>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -189,11 +188,11 @@ export default function InvoiceEditor() {
             <a href={shareUrl} target="_blank" className="text-blue-600 break-all underline text-xs">{shareUrl}</a>
           </div>
         )}
-      </div>
+    </>
+  )
 
-      {/* Preview Panel */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="bg-white rounded-xl border p-10 max-w-2xl mx-auto shadow-sm print:shadow-none">
+  const preview = (
+    <div className="bg-white rounded-xl border p-6 md:p-10 max-w-2xl mx-auto shadow-sm print:shadow-none">
           <div className="flex justify-between items-start mb-10">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-widest">Invoice</h1>
@@ -260,7 +259,7 @@ export default function InvoiceEditor() {
             Made with Paperly · paperly.app
           </div>
         </div>
-      </div>
-    </div>
   )
+
+  return <EditorLayout form={form} preview={preview} />
 }
