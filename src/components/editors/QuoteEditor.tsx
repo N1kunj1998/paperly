@@ -10,6 +10,7 @@ import { generateSlug } from '@/lib/slugify'
 import { useAuth } from '@/components/AuthProvider'
 import { Plus, Trash2, Download, Share2, Loader2 } from 'lucide-react'
 import EditorLayout from './EditorLayout'
+import LogoUpload from '@/components/LogoUpload'
 import { downloadPDF } from '@/lib/pdf/downloadPDF'
 import QuotePDF from '@/lib/pdf/QuotePDF'
 import { createElement } from 'react'
@@ -24,6 +25,7 @@ interface QuoteData {
   line_items: LineItem[]
   tax_rate: number
   notes: string
+  logo_url: string
 }
 
 const defaultData: QuoteData = {
@@ -35,6 +37,7 @@ const defaultData: QuoteData = {
   line_items: [{ description: '', qty: 1, rate: 0 }],
   tax_rate: 0,
   notes: 'This quote is valid for 30 days.',
+  logo_url: '',
 }
 
 export default function QuoteEditor() {
@@ -66,6 +69,12 @@ export default function QuoteEditor() {
   const form = (
     <>
       <h2 className="font-semibold text-gray-800">Quote Details</h2>
+        <div>
+          <Label className="text-xs text-gray-500">Logo (optional)</Label>
+          <div className="mt-1">
+            <LogoUpload value={data.logo_url} onChange={url => setData(d => ({ ...d, logo_url: url }))} />
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div><Label className="text-xs text-gray-500">Quote #</Label><Input value={data.quote_number} onChange={e => setData(d => ({ ...d, quote_number: e.target.value }))} /></div>
@@ -122,6 +131,10 @@ export default function QuoteEditor() {
     <div className="bg-white rounded-xl border p-6 md:p-10 max-w-2xl mx-auto shadow-sm">
           <div className="flex justify-between items-start mb-10">
             <div>
+              {data.logo_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={data.logo_url} alt="Logo" className="h-12 max-w-[140px] object-contain mb-3" />
+              )}
               <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-widest">Quote</h1>
               <p className="text-gray-400 mt-1">#{data.quote_number}</p>
             </div>
