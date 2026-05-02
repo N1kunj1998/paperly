@@ -1,6 +1,6 @@
 # 📄 Paperly
 
-[![CI/CD → Vercel Production](https://github.com/N1kunj1998/paperly/actions/workflows/deploy.yml/badge.svg)](https://github.com/N1kunj1998/paperly/actions/workflows/deploy.yml)
+[![CI/CD → Vercel Production](https://github.com/N1kunj1998/paperly/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/N1kunj1998/paperly/actions/workflows/deploy.yml)
 
 **Professional documents in under 60 seconds.**
 Create invoices, receipts, and quotes. Download as PDF or share a link. No account needed.
