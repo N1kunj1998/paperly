@@ -7,7 +7,10 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Receipt, MessageSquareQuote, Plus, Trash2, ExternalLink, LogOut } from 'lucide-react'
+import { FileText, Receipt, MessageSquareQuote, Plus, Trash2, ExternalLink, LogOut, UserCircle, Copy } from 'lucide-react'
+import ProfileModal from '@/components/ProfileModal'
+import { createClient as createBrowserClient } from '@/lib/supabase-browser'
+import { generateSlug } from '@/lib/slugify'
 
 interface Doc {
   id: string
@@ -46,8 +49,11 @@ export default function DashboardClient({ user, documents: initial }: Props) {
   const [docs, setDocs] = useState<Doc[]>(initial)
   const [filter, setFilter] = useState<string>('all')
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [duplicating, setDuplicating] = useState<string | null>(null)
+  const [showProfile, setShowProfile] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const browserSupabase = createBrowserClient()
 
   const filtered = filter === 'all' ? docs : docs.filter(d => d.type === filter)
 
@@ -59,6 +65,26 @@ export default function DashboardClient({ user, documents: initial }: Props) {
     setDeleting(null)
   }
 
+  const handleDuplicate = async (doc: Doc) => {
+    setDuplicating(doc.id)
+    const slug = generateSlug()
+    const data = { ...doc.data }
+    // increment doc number
+    const numKey = doc.type === 'invoice' ? 'invoice_number' : doc.type === 'receipt' ? 'receipt_number' : 'quote_number'
+    const current = (data as Record<string, string>)[numKey] ?? ''
+    const match = current.match(/^(.*?)(\d+)$/)
+    if (match) (data as Record<string, string>)[numKey] = match[1] + (parseInt(match[2]) + 1)
+
+    const { data: inserted } = await browserSupabase
+      .from('documents')
+      .insert({ type: doc.type, slug, data, user_id: user.id })
+      .select()
+      .single()
+
+    if (inserted) setDocs(prev => [inserted, ...prev])
+    setDuplicating(null)
+  }
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
@@ -66,6 +92,7 @@ export default function DashboardClient({ user, documents: initial }: Props) {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50">
       {/* Nav */}
       <nav className="border-b bg-white px-6 py-4 flex items-center justify-between">
@@ -75,6 +102,9 @@ export default function DashboardClient({ user, documents: initial }: Props) {
         </Link>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500 hidden sm:block">{user.email}</span>
+          <Button variant="outline" size="sm" onClick={() => setShowProfile(true)}>
+            <UserCircle className="h-4 w-4 mr-1" /> Profile
+          </Button>
           <Button variant="outline" size="sm" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-1" /> Sign out
           </Button>
@@ -148,9 +178,18 @@ export default function DashboardClient({ user, documents: initial }: Props) {
                       </Button>
                     </Link>
                     <button
+                      onClick={() => handleDuplicate(doc)}
+                      disabled={duplicating === doc.id}
+                      className="text-gray-300 hover:text-blue-400 transition-colors p-1"
+                      title="Duplicate"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                    <button
                       onClick={() => handleDelete(doc.id)}
                       disabled={deleting === doc.id}
                       className="text-gray-300 hover:text-red-400 transition-colors p-1"
+                      title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -162,5 +201,7 @@ export default function DashboardClient({ user, documents: initial }: Props) {
         )}
       </div>
     </div>
+    {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+    </>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,8 @@ import EditorLayout from './EditorLayout'
 import { downloadPDF } from '@/lib/pdf/downloadPDF'
 import ReceiptPDF from '@/lib/pdf/ReceiptPDF'
 import { createElement } from 'react'
+import { useDraft } from '@/hooks/useDraft'
+import { getProfile } from '@/lib/profile'
 
 interface LineItem { description: string; qty: number; rate: number }
 interface ReceiptData {
@@ -34,11 +36,24 @@ const defaultData: ReceiptData = {
 }
 
 export default function ReceiptEditor() {
-  const [data, setData] = useState<ReceiptData>(defaultData)
+  const { state: data, setState: setData, restored, clearDraft } = useDraft<ReceiptData>('draft_receipt', defaultData)
   const [saving, setSaving] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   const { user } = useAuth()
   const supabase = createClient()
+
+  useEffect(() => {
+    if (restored || !user) return
+    const profile = getProfile(user)
+    if (!profile) return
+    setData(d => ({
+      ...d,
+      from: {
+        name: d.from.name || profile.name || '',
+        email: d.from.email || profile.email || '',
+      },
+    }))
+  }, [user, restored]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const total = data.line_items.reduce((s, i) => s + i.qty * i.rate, 0)
 
@@ -52,6 +67,7 @@ export default function ReceiptEditor() {
     if (!error) {
       const url = `${window.location.origin}/doc/${slug}`
       setShareUrl(url)
+      clearDraft()
       await navigator.clipboard.writeText(url).catch(() => {})
     }
     setSaving(false)
@@ -60,6 +76,12 @@ export default function ReceiptEditor() {
   const form = (
     <>
       <h2 className="font-semibold text-gray-800">Receipt Details</h2>
+      {restored && (
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-xs">
+          <span className="text-blue-700">Draft restored from your last session</span>
+          <button onClick={() => { clearDraft(); setData(defaultData) }} className="text-blue-800 font-semibold underline underline-offset-2 ml-2 whitespace-nowrap">Clear</button>
+        </div>
+      )}
       {!user && (
         <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs">
           <span className="text-amber-700">PDF includes "Made with Paperly" watermark</span>
