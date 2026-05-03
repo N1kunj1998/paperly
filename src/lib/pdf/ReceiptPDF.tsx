@@ -39,9 +39,10 @@ interface ReceiptPDFProps {
   date: string
   line_items: LineItem[]
   notes: string
+  showWatermark?: boolean
 }
 
-export default function ReceiptPDF({ from, to, receipt_number, date, line_items, notes }: ReceiptPDFProps) {
+export default function ReceiptPDF({ from, to, receipt_number, date, line_items, notes, showWatermark = true }: ReceiptPDFProps) {
   const total = line_items.reduce((s, i) => s + i.qty * i.rate, 0)
 
   return (
@@ -107,7 +108,7 @@ export default function ReceiptPDF({ from, to, receipt_number, date, line_items,
           </View>
         ) : null}
 
-        <Text style={styles.footer}>Made with Paperly · paperly.app</Text>
+        {showWatermark && <Text style={styles.footer}>Made with Paperly · paperly.app</Text>}
       </Page>
     </Document>
   )

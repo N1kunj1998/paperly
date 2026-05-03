@@ -42,9 +42,10 @@ interface InvoicePDFProps {
   tax_rate: number
   notes: string
   logo_url?: string
+  showWatermark?: boolean
 }
 
-export default function InvoicePDF({ from, to, invoice_number, issue_date, due_date, line_items, tax_rate, notes, logo_url }: InvoicePDFProps) {
+export default function InvoicePDF({ from, to, invoice_number, issue_date, due_date, line_items, tax_rate, notes, logo_url, showWatermark = true }: InvoicePDFProps) {
   const subtotal = line_items.reduce((s, i) => s + i.qty * i.rate, 0)
   const tax = subtotal * tax_rate / 100
   const total = subtotal + tax
@@ -124,7 +125,7 @@ export default function InvoicePDF({ from, to, invoice_number, issue_date, due_d
           </View>
         ) : null}
 
-        <Text style={styles.footer}>Made with Paperly · paperly.app</Text>
+        {showWatermark && <Text style={styles.footer}>Made with Paperly · paperly.app</Text>}
       </Page>
     </Document>
   )

@@ -60,6 +60,12 @@ export default function ReceiptEditor() {
   const form = (
     <>
       <h2 className="font-semibold text-gray-800">Receipt Details</h2>
+      {!user && (
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs">
+          <span className="text-amber-700">PDF includes "Made with Paperly" watermark</span>
+          <a href="/login" className="text-amber-800 font-semibold underline underline-offset-2 ml-2 whitespace-nowrap">Sign up to remove</a>
+        </div>
+      )}
 
         <div className="grid grid-cols-2 gap-3">
           <div><Label className="text-xs text-gray-500">Receipt #</Label><Input value={data.receipt_number} onChange={e => setData(d => ({ ...d, receipt_number: e.target.value }))} /></div>
@@ -94,7 +100,7 @@ export default function ReceiptEditor() {
         <div><Label className="text-xs text-gray-500">Notes</Label><Textarea placeholder="Thank you!" value={data.notes} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={2} /></div>
 
         <div className="flex gap-2 pt-2">
-          <Button onClick={() => downloadPDF(createElement(ReceiptPDF, data), `receipt-${data.receipt_number}.pdf`)} variant="outline" className="flex-1"><Download className="h-4 w-4 mr-1" /> PDF</Button>
+          <Button onClick={() => downloadPDF(createElement(ReceiptPDF, { ...data, showWatermark: !user }), `receipt-${data.receipt_number}.pdf`)} variant="outline" className="flex-1"><Download className="h-4 w-4 mr-1" /> PDF</Button>
           <Button onClick={handleSaveAndShare} className="flex-1" disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Share2 className="h-4 w-4 mr-1" />} Share
           </Button>

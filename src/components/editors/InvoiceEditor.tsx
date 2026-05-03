@@ -94,7 +94,7 @@ export default function InvoiceEditor() {
 
   const handleDownload = () => {
     downloadPDF(
-      createElement(InvoicePDF, data),
+      createElement(InvoicePDF, { ...data, showWatermark: !user }),
       `invoice-${data.invoice_number}.pdf`
     )
   }
@@ -102,6 +102,12 @@ export default function InvoiceEditor() {
   const form = (
     <>
       <h2 className="font-semibold text-gray-800">Invoice Details</h2>
+      {!user && (
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs">
+          <span className="text-amber-700">PDF includes "Made with Paperly" watermark</span>
+          <a href="/login" className="text-amber-800 font-semibold underline underline-offset-2 ml-2 whitespace-nowrap">Sign up to remove</a>
+        </div>
+      )}
         <div>
           <Label className="text-xs text-gray-500">Logo (optional)</Label>
           <div className="mt-1">
